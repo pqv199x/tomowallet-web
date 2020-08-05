@@ -7,15 +7,16 @@
  */
 // ===== IMPORTS =====
 // Modules
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
+import { Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
 // Custom Components
-import PortfolioTable from './PortfolioTable';
-import TransactionTable from './TransactionTable';
+import PortfolioTable from "./PortfolioTable";
+import TransactionTable from "./TransactionTable";
 // Constants
-import { LIST } from '../../../constants';
-import { MainTabWrapper } from '../../../styles';
+import { LIST, API, MSG } from "../../../constants";
+import { FormattedMessage } from "react-intl";
+import { MainTabWrapper } from "../../../styles";
 // ===================
 
 // ===== MAIN COMPONENT =====
@@ -41,6 +42,17 @@ class DataTables extends PureComponent {
               </NavLink>
             </NavItem>
           ))}
+          <NavItem className="ml-auto">
+            <NavLink
+              href={API.TOMOCHAIN_MAINNET.VIEW_WRAP_APP}
+              target="_blank"
+              className="mr-0"
+            >
+              <FormattedMessage
+                {...MSG.MY_WALLET_TABLE_TOOLBAR_LINK_WRAP_APP}
+              />
+            </NavLink>
+          </NavItem>
         </Nav>
         <TabContent activeTab={tableType}>
           <TabPane tabId={LIST.MY_WALLET_TABLE_TYPES[0].value}>

@@ -73,7 +73,6 @@ class ProcessingContent extends Component {
         } = this.props
 
         this.setTips();
-        console.log('process',process)
 
         if (process.status && process.total > 0 && process.screen === 'withdrawal') {
             const total = (process.total * (process.total < 2 ? 4 : 6)); // 4 seconds per tx

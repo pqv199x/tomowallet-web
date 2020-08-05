@@ -5,11 +5,11 @@
  */
 // ===== IMPORTS =====
 // Modules
-import { fromJS } from 'immutable';
-import _get from 'lodash.get';
-import _omit from 'lodash.omit';
-import _isNumber from 'lodash.isnumber';
-import moment from 'moment';
+import { fromJS } from "immutable";
+import _get from "lodash.get";
+import _omit from "lodash.omit";
+import _isNumber from "lodash.isnumber";
+import moment from "moment";
 // Constants
 import {
   LOAD_COIN_DATA,
@@ -54,35 +54,35 @@ import {
   SCAN_PRIVACY_TRANSACTION_SUCCESS,
   UPDATE_PROCESS,
   LOAD_BALANCE_SUCCESS
-} from './constants';
-import { LIST } from '../../constants';
-import tomoIcon from '../../assets/images/logo-tomo.png';
+} from "./constants";
+import { LIST } from "../../constants";
+import tomoIcon from "../../assets/images/logo-tomo.png";
 // ===================
 
 // ===== PRE-INITIATION VARIABLES =====
 const initialSendForm = {
-  [SEND_TOKEN_FIELDS.TOKEN]: '',
-  [SEND_TOKEN_FIELDS.RECIPIENT]: '',
-  [SEND_TOKEN_FIELDS.TRANSFER_AMOUNT]: '',
-  [SEND_TOKEN_FIELDS.MESSAGE]: '',
+  [SEND_TOKEN_FIELDS.TOKEN]: "",
+  [SEND_TOKEN_FIELDS.RECIPIENT]: "",
+  [SEND_TOKEN_FIELDS.TRANSFER_AMOUNT]: "",
+  [SEND_TOKEN_FIELDS.MESSAGE]: "",
 };
 
 // ===== PRE-INITIATION VARIABLES =====
 const initialDepositForm = {
-  [DEPOSIT_PRIVACY_FIELDS.TOKEN]: '',
-  [DEPOSIT_PRIVACY_FIELDS.TRANSFER_AMOUNT]: '',
+  [DEPOSIT_PRIVACY_FIELDS.TOKEN]: "",
+  [DEPOSIT_PRIVACY_FIELDS.TRANSFER_AMOUNT]: "",
 };
 
 const initialWithdrawForm = {
-  [WITHDRAW_PRIVACY_FIELDS.TOKEN]: '',
-  [WITHDRAW_PRIVACY_FIELDS.TRANSFER_AMOUNT]: '',
+  [WITHDRAW_PRIVACY_FIELDS.TOKEN]: "",
+  [WITHDRAW_PRIVACY_FIELDS.TRANSFER_AMOUNT]: "",
 }
 
 const initialState = fromJS({
   coinData: {
     isLoaded: false,
     data: {},
-    errorMessage: '',
+    errorMessage: "",
   },
   receiveTokenPopup: {
     errors: {},
@@ -97,7 +97,7 @@ const initialState = fromJS({
   },
   successPopup: {
     isOpen: false,
-    txHash: '',
+    txHash: "",
   },
   tableType: LIST.MY_WALLET_TABLE_TYPES[0].value,
   tokenOptions: [],
@@ -122,7 +122,7 @@ const initialState = fromJS({
   depositForm: initialDepositForm,
   successDepositPopup: {
     isOpen: false,
-    txHash: '',
+    txHash: "",
   },
   withdrawPrivacyPopup: {
     errors: {},
@@ -132,12 +132,12 @@ const initialState = fromJS({
   withdrawForm: initialWithdrawForm,
   successWithdrawPopup: {
     isOpen: false,
-    txHash: '',
+    txHash: "",
   },
   prepareTxProof: {
-    screen: '',
-    total: '',
-    current: '',
+    screen: "",
+    total: "",
+    current: "",
     status: false
   },
 });
@@ -148,176 +148,176 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case LOAD_COIN_DATA:
       return state
-        .setIn(['coinData', 'isLoaded'], false)
-        .setIn(['coinData', 'errorMessage'], '');
+        .setIn(["coinData", "isLoaded"], false)
+        .setIn(["coinData", "errorMessage"], "");
     case LOAD_COIN_DATA_FAILED:
       return state
-        .setIn(['coinData', 'isLoaded'], true)
-        .setIn(['coinData', 'errorMessage'], action.message);
+        .setIn(["coinData", "isLoaded"], true)
+        .setIn(["coinData", "errorMessage"], action.message);
     case LOAD_COIN_DATA_SUCCESS:
       return state
-        .setIn(['coinData', 'isLoaded'], true)
-        .setIn(['coinData', 'data'], action.data)
-        .update('tokenOptions', tokens =>
-          tokens.map(tok => {
-            if (tok[PORTFOLIO_COLUMNS.TOKEN_NAME] === 'TOMO') {
+        .setIn(["coinData", "isLoaded"], true)
+        .setIn(["coinData", "data"], action.data)
+        .update("tokenOptions", (tokens) =>
+          tokens.map((tok) => {
+            if (tok[PORTFOLIO_COLUMNS.TOKEN_NAME] === "TOMO") {
               return {
                 ...tok,
                 [PORTFOLIO_COLUMNS.PRICE]: _get(
                   action,
-                  'data.quotes.USD.price',
-                  0,
+                  "data.quotes.USD.price",
+                  0
                 ),
               };
             }
             return tok;
-          }),
+          })
         );
     case LOAD_TOKEN_OPTIONS:
-      return state.set('tokenOptions', action.initialTokens);
+      return state.set("tokenOptions", action.initialTokens);
     case LOAD_TOKEN_OPTIONS_SUCCESS:
-      return state.update('tokenOptions', tokens =>
+      return state.update("tokenOptions", (tokens) =>
         tokens.concat(
-          action.tokens.map(token => {
+          action.tokens.map((token) => {
             return {
-              [PORTFOLIO_COLUMNS.TOKEN_NAME]: _get(token, 'name', ''),
-              [PORTFOLIO_COLUMNS.SYMBOL]: _get(token, 'symbol', ''),
-              [PORTFOLIO_COLUMNS.ICON]: _get(token, 'icon', ''),
-              [PORTFOLIO_COLUMNS.BALANCE]: _get(token, 'balance', '0'),
-              [PORTFOLIO_COLUMNS.DECIMALS]: _get(token, 'decimals', 0),
-              [PORTFOLIO_COLUMNS.PRICE]: _get(token, 'usdPrice', 0),
+              [PORTFOLIO_COLUMNS.TOKEN_NAME]: _get(token, "name", ""),
+              [PORTFOLIO_COLUMNS.SYMBOL]: _get(token, "symbol", ""),
+              [PORTFOLIO_COLUMNS.ICON]: _get(token, "icon", ""),
+              [PORTFOLIO_COLUMNS.BALANCE]: _get(token, "balance", "0"),
+              [PORTFOLIO_COLUMNS.DECIMALS]: _get(token, "decimals", 0),
+              [PORTFOLIO_COLUMNS.PRICE]: _get(token, "usdPrice", 0),
               [PORTFOLIO_COLUMNS.TOKEN_ADDRESS]: _get(
                 token,
-                'tokenAddress',
-                '',
+                "tokenAddress",
+                ""
               ),
-              [PORTFOLIO_COLUMNS.TYPE]: _get(token, 'type', 'TRC20'),
-              [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: 0.03
+              [PORTFOLIO_COLUMNS.TYPE]: _get(token, "type", "TRC20"),
+              [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: 0.03,
             };
-          }),
-        ),
+          })
+        )
       );
     case LOAD_TRANSACTION_DATA:
-      return state.setIn(['transactionTable', 'data'], []);
+      return state.setIn(["transactionTable", "data"], []);
     case LOAD_TRANSACTION_DATA_SUCCESS:
-      return state.set('transactionTable', {
-        data: _get(action, 'tableData.items', []).map(trans => ({
+      return state.set("transactionTable", {
+        data: _get(action, "tableData.items", []).map((trans) => ({
           [TRANSACTION_COLUMNS.TOKEN_TYPE]: trans.tokenType,
           [TRANSACTION_COLUMNS.TX_HASH]: trans.txHash,
           [TRANSACTION_COLUMNS.CREATE_TIME]: moment(
             _isNumber(trans.createdTime)
               ? Number(`${trans.createdTime}000`)
-              : trans.createdTime,
+              : trans.createdTime
           ),
           [TRANSACTION_COLUMNS.FROM]: trans.from,
           [TRANSACTION_COLUMNS.TO]: trans.to,
           [TRANSACTION_COLUMNS.QUANTITY]: trans.amount,
           [TRANSACTION_COLUMNS.TYPE]: trans.type,
         })),
-        page: _get(action, 'tableData.currentPage', 1),
-        total: _get(action, 'tableData.total', 0),
-        pages: _get(action, 'tableData.pages', 1),
+        page: _get(action, "tableData.currentPage", 1),
+        total: _get(action, "tableData.total", 0),
+        pages: _get(action, "tableData.pages", 1),
       });
     case RESET_RECEIVE_TOKEN_FORM:
       return state
-        .setIn(['receiveTokenPopup', 'input'], {})
-        .setIn(['receiveTokenPopup', 'errors'], {});
+        .setIn(["receiveTokenPopup", "input"], {})
+        .setIn(["receiveTokenPopup", "errors"], {});
     case RESET_SEND_TOKEN_FORM:
-      return state.set('sendForm', initialSendForm);
+      return state.set("sendForm", initialSendForm);
     case RESET_STATE:
       return initialState;
     case SET_TABLE_TYPE:
-      return state.set('tableType', action.tableType);
+      return state.set("tableType", action.tableType);
     case TOGGLE_RECEIVE_TOKEN_POPUP:
-      return state.setIn(['receiveTokenPopup', 'isOpen'], action.bool);
+      return state.setIn(["receiveTokenPopup", "isOpen"], action.bool);
     case TOGGLE_SEND_TOKEN_POPUP: {
       if (action.bool) {
         return state
-          .setIn(['sendTokenPopup', 'isOpen'], true)
-          .set('sendForm', {
+          .setIn(["sendTokenPopup", "isOpen"], true)
+          .set("sendForm", {
             ...initialSendForm,
             ...(action.initialValues || {}),
           })
-          .setIn(['sendTokenPopup', 'errors'], {});
+          .setIn(["sendTokenPopup", "errors"], {});
       }
-      return state.setIn(['sendTokenPopup', 'isOpen'], false);
+      return state.setIn(["sendTokenPopup", "isOpen"], false);
     }
     case TOGGLE_SUCCESS_POPUP: {
       const newState = state
-        .setIn(['successPopup', 'isOpen'], action.bool)
-        .setIn(['successPopup', 'txHash'], action.hash);
+        .setIn(["successPopup", "isOpen"], action.bool)
+        .setIn(["successPopup", "txHash"], action.hash);
       if (!action.bool) {
         return newState.setIn(
-          ['sendTokenPopup', 'stage'],
-          SEND_TOKEN_STAGES.FORM,
+          ["sendTokenPopup", "stage"],
+          SEND_TOKEN_STAGES.FORM
         );
       }
       return newState;
     }
     case UPDATE_RECEIVE_TOKEN_ERRORS:
-      return state.setIn(['receiveTokenPopup', 'errors'], action.errors);
+      return state.setIn(["receiveTokenPopup", "errors"], action.errors);
     case UPDATE_RECEIVE_TOKEN_INPUT:
       return state
-        .setIn(['receiveTokenPopup', 'input', action.name], action.value)
-        .updateIn(['receiveTokenPopup', 'errors'], errors =>
-          _omit(errors, action.name),
+        .setIn(["receiveTokenPopup", "input", action.name], action.value)
+        .updateIn(["receiveTokenPopup", "errors"], (errors) =>
+          _omit(errors, action.name)
         );
     case UPDATE_SEND_TOKEN_ERRORS:
-      return state.setIn(['sendTokenPopup', 'errors'], action.errors);
+      return state.setIn(["sendTokenPopup", "errors"], action.errors);
     case UPDATE_SEND_TOKEN_INPUT:
       return state
-        .setIn(['sendForm', action.name], action.value)
-        .updateIn(['sendTokenPopup', 'errors'], errors =>
-          _omit(errors, action.name),
+        .setIn(["sendForm", action.name], action.value)
+        .updateIn(["sendTokenPopup", "errors"], (errors) =>
+          _omit(errors, action.name)
         );
     case UPDATE_SEND_TOKEN_POPUP_STAGE:
       return state
-        .setIn(['sendTokenPopup', 'stage'], action.stage)
-        .setIn(['sendTokenPopup', 'errors'], {});
+        .setIn(["sendTokenPopup", "stage"], action.stage)
+        .setIn(["sendTokenPopup", "errors"], {});
     case SCAN_PRIVACY_DATA_SUCCESS:
         return state
-          .set('privacyData', [{
-            [PORTFOLIO_COLUMNS.TOKEN_NAME]: 'TomoChain',
-            [PORTFOLIO_COLUMNS.SYMBOL]: 'TOMO',
+          .set("privacyData", [{
+            [PORTFOLIO_COLUMNS.TOKEN_NAME]: "TomoChain",
+            [PORTFOLIO_COLUMNS.SYMBOL]: "TOMO",
             [PORTFOLIO_COLUMNS.ICON]: tomoIcon,
             [PORTFOLIO_COLUMNS.BALANCE]: action.data.balance || 0,
             [PORTFOLIO_COLUMNS.DECIMALS]: 9,
             [PORTFOLIO_COLUMNS.PRICE]: 1,
-            [PORTFOLIO_COLUMNS.TOKEN_ADDRESS]: '',
-            [PORTFOLIO_COLUMNS.TYPE]: 'TRC21',
-            [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: '0.001'
+            [PORTFOLIO_COLUMNS.TOKEN_ADDRESS]: "",
+            [PORTFOLIO_COLUMNS.TYPE]: "TRC21",
+            [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: "0.001"
           }]);
       case TOGGLE_DEPOSIT_PRIVACY_POPUP:{
         if (action.bool) {
           return state
-            .setIn(['depositPrivacyPopup', 'isOpen'], true)
-            .set('depositForm', {
+            .setIn(["depositPrivacyPopup", "isOpen"], true)
+            .set("depositForm", {
               ...initialDepositForm,
               ...(action.initialValues || {}),
             })
-            .setIn(['depositPrivacyPopup', 'errors'], {});
+            .setIn(["depositPrivacyPopup", "errors"], {});
         }
-        return state.setIn(['depositPrivacyPopup', 'isOpen'], false);
+        return state.setIn(["depositPrivacyPopup", "isOpen"], false);
       }
       case UPDATE_DEPOSIT_PRIVACY_ERRORS:
-        return state.setIn(['depositPrivacyPopup', 'errors'], action.errors);
+        return state.setIn(["depositPrivacyPopup", "errors"], action.errors);
       case UPDATE_DEPOSIT_PRIVACY_INPUT:
         return state
-          .setIn(['depositForm', action.name], action.value)
-          .updateIn(['depositPrivacyPopup', 'errors'], errors =>
+          .setIn(["depositForm", action.name], action.value)
+          .updateIn(["depositPrivacyPopup", "errors"], errors =>
             _omit(errors, action.name),
           );
       case UPDATE_DEPOSIT_PRIVACY_POPUP_STAGE:
         return state
-          .setIn(['depositPrivacyPopup', 'stage'], action.stage)
-          .setIn(['depositPrivacyPopup', 'errors'], {});
+          .setIn(["depositPrivacyPopup", "stage"], action.stage)
+          .setIn(["depositPrivacyPopup", "errors"], {});
       case TOGGLE_DEPOSIT_SUCCESS_POPUP: {
         const newState = state
-          .setIn(['successDepositPopup', 'isOpen'], action.bool)
-          .setIn(['successDepositPopup', 'txHash'], action.hash);
+          .setIn(["successDepositPopup", "isOpen"], action.bool)
+          .setIn(["successDepositPopup", "txHash"], action.hash);
         if (!action.bool) {
           return newState.setIn(
-            ['depositPrivacyPopup', 'stage'],
+            ["depositPrivacyPopup", "stage"],
             DEPOSIT_STAGES.FORM,
           );
         }
@@ -326,45 +326,45 @@ export default (state = initialState, action) => {
       case TOGGLE_WITHDRAW_PRIVACY_POPUP: {
         if (action.bool) {
           return state
-            .setIn(['withdrawPrivacyPopup', 'isOpen'], true)
-            .set('withdrawForm', {
+            .setIn(["withdrawPrivacyPopup", "isOpen"], true)
+            .set("withdrawForm", {
               ...initialWithdrawForm,
               ...(action.initialValues || {}),
             })
-            .setIn(['withdrawPrivacyPopup', 'errors'], {});
+            .setIn(["withdrawPrivacyPopup", "errors"], {});
         }
-        return state.setIn(['withdrawPrivacyPopup', 'isOpen'], false);
+        return state.setIn(["withdrawPrivacyPopup", "isOpen"], false);
       }
       case UPDATE_WITHDRAW_PRIVACY_INPUT:
         return state
-        .setIn(['withdrawForm', action.name], action.value)
-        .updateIn(['withdrawPrivacyPopup', 'errors'], errors =>
+        .setIn(["withdrawForm", action.name], action.value)
+        .updateIn(["withdrawPrivacyPopup", "errors"], errors =>
           _omit(errors, action.name),
         );
       case UPDATE_WITHDRAW_PRIVACY_ERRORS:
-        return state.setIn(['withdrawPrivacyPopup', 'errors'], action.errors);
+        return state.setIn(["withdrawPrivacyPopup", "errors"], action.errors);
       case UPDATE_WITHDRAW_PRIVACY_POPUP_STAGE:
         return state
-          .setIn(['withdrawPrivacyPopup', 'stage'], action.stage)
-          .setIn(['withdrawPrivacyPopup', 'errors'], {});
+          .setIn(["withdrawPrivacyPopup", "stage"], action.stage)
+          .setIn(["withdrawPrivacyPopup", "errors"], {});
       case TOGGLE_WITHDRAW_SUCCESS_POPUP: {
         const newState = state
-          .setIn(['successWithdrawPopup', 'isOpen'], action.bool)
-          .setIn(['successWithdrawPopup', 'txHash'], action.hash);
+          .setIn(["successWithdrawPopup", "isOpen"], action.bool)
+          .setIn(["successWithdrawPopup", "txHash"], action.hash);
         if (!action.bool) {
           return newState.setIn(
-            ['withdrawPrivacyPopup', 'stage'],
+            ["withdrawPrivacyPopup", "stage"],
             DEPOSIT_STAGES.FORM,
           );
         }
         return newState;
       }
       case SCAN_PRIVACY_TRANSACTION:
-      return state.setIn(['privacyTransactionTable', 'data'], []);
+      return state.setIn(["privacyTransactionTable", "data"], []);
       case SCAN_PRIVACY_TRANSACTION_SUCCESS:
-        return state.set('privacyTransactionTable', {
-          data: _get(action, 'tableData.items', []).map(trans => ({
-            [TRANSACTION_COLUMNS.TOKEN_TYPE]: 'TOMO',
+        return state.set("privacyTransactionTable", {
+          data: _get(action, "tableData.items", []).map(trans => ({
+            [TRANSACTION_COLUMNS.TOKEN_TYPE]: "TOMO",
             [TRANSACTION_COLUMNS.CREATE_TIME]: moment(
               _isNumber(trans.createdTime)
                 ? Number(`${trans.createdTime}000`)
@@ -374,27 +374,27 @@ export default (state = initialState, action) => {
             [TRANSACTION_COLUMNS.TO]: trans.to,
             [TRANSACTION_COLUMNS.QUANTITY]: trans.amount,
           })),
-          page: _get(action, 'tableData.currentPage', 1),
-          total: _get(action, 'tableData.total', 0),
-          pages: _get(action, 'tableData.pages', 1),
+          page: _get(action, "tableData.currentPage", 1),
+          total: _get(action, "tableData.total", 0),
+          pages: _get(action, "tableData.pages", 1),
         });
       case UPDATE_PROCESS:
-        return state.set('prepareTxProof', {
-          screen: _get(action, ['data', 'screen'], ''),
-          total: _get(action, ['data', 'total'], 0),
-          current: _get(action, ['data', 'current'], 0),
-          status: _get(action, ['data', 'status'], false)
+        return state.set("prepareTxProof", {
+          screen: _get(action, ["data", "screen"], ""),
+          total: _get(action, ["data", "total"], 0),
+          current: _get(action, ["data", "current"], 0),
+          status: _get(action, ["data", "status"], false)
         })
       case LOAD_BALANCE_SUCCESS: {
             return state
-            .update('tokenOptions', tokens =>
+            .update("tokenOptions", tokens =>
                 tokens.map(tok => {
-                if (tok[PORTFOLIO_COLUMNS.TOKEN_NAME] === 'TOMO') {
+                if (tok[PORTFOLIO_COLUMNS.TOKEN_NAME] === "TOMO") {
                     return {
                     ...tok,
                     [PORTFOLIO_COLUMNS.BALANCE]: _get(
                         action,
-                        'wallet.balance',
+                        "wallet.balance",
                         0,
                     ),
                     };
@@ -403,18 +403,18 @@ export default (state = initialState, action) => {
                 }),
             );
         }
-      case 'UPDATE_PRIVACY_BALANCE':
+      case "UPDATE_PRIVACY_BALANCE":
           return state
-            .set('privacyData', [{
-              [PORTFOLIO_COLUMNS.TOKEN_NAME]: 'TomoChain',
-              [PORTFOLIO_COLUMNS.SYMBOL]: 'TOMO',
+            .set("privacyData", [{
+              [PORTFOLIO_COLUMNS.TOKEN_NAME]: "TomoChain",
+              [PORTFOLIO_COLUMNS.SYMBOL]: "TOMO",
               [PORTFOLIO_COLUMNS.ICON]: tomoIcon,
               [PORTFOLIO_COLUMNS.BALANCE]: action.data.balance || 0,
               [PORTFOLIO_COLUMNS.DECIMALS]: 9,
               [PORTFOLIO_COLUMNS.PRICE]: 1,
-              [PORTFOLIO_COLUMNS.TOKEN_ADDRESS]: '',
-              [PORTFOLIO_COLUMNS.TYPE]: 'TRC21',
-              [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: '0.001',
+              [PORTFOLIO_COLUMNS.TOKEN_ADDRESS]: "",
+              [PORTFOLIO_COLUMNS.TYPE]: "TRC21",
+              [PORTFOLIO_COLUMNS.TRANSACTION_FEE]: "0.001",
             }]);
     default:
       return state;

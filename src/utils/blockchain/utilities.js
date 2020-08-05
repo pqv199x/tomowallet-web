@@ -8,6 +8,7 @@
 import Web3 from 'web3';
 import _isEmpty from 'lodash.isempty';
 import { Address as AdUtil } from 'tomoprivacyjs';
+
 // Utilities
 import { trimMnemonic } from '../miscellaneous';
 // ===================

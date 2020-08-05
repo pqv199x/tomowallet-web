@@ -1,5 +1,5 @@
 // Style Global
-@import './iconfont/style.css';
+@import "./iconfont/style.css";
 
 // ===== Animations =====
 @keyframes blinker {
@@ -89,7 +89,7 @@ body {
   color: #9eaacc;
   line-height: 1.7;
   min-height: 100vh;
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
 }
 a {
   transition: all 0.3s;
@@ -109,7 +109,7 @@ a {
     &:before {
       background-color: #3a8ecc;
       border-radius: 50%;
-      content: '';
+      content: "";
       width: 6px;
       height: 6px;
       position: absolute;
@@ -165,7 +165,7 @@ a {
     svg {
       width: 12px;
       margin-left: 5px;
-      color: #e4ae63;
+      color: #00e8b5;
     }
   }
   .box_select {
@@ -201,7 +201,8 @@ a {
     text-transform: uppercase;
     position: relative;
     &::before {
-      content: '';
+      background-color: #272d40;
+      content: "";
       border-radius: 8px;
       width: 1px;
       height: 70%;
@@ -250,7 +251,7 @@ a {
   }
 }
 .font-icon-checkmark-outline {
-  color: #e4ae63;
+  color: #00e8b5;
   font-size: 60px;
 }
 .word-break {
@@ -264,7 +265,7 @@ a {
     font-weight: 600;
     text-transform: uppercase;
     text-align: center;
-    font-family: 'Bai Jamjuree', sans-serif;
+    font-family: "Bai Jamjuree", sans-serif;
   }
 }
 .border {
@@ -293,7 +294,7 @@ a {
     li {
       position: relative;
       &:before {
-        content: '';
+        content: "";
         height: 20px;
         width: 1px;
         position: absolute;

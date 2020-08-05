@@ -5,7 +5,7 @@
  */
 // ===== IMPORTS =====
 // Modules
-import styled from 'styled-components';
+import styled from "styled-components";
 import {
   Nav,
   Navbar,
@@ -13,7 +13,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-} from 'reactstrap';
+} from "reactstrap";
 // ===================
 
 import { MediumButtonStyler } from '../../styles';
@@ -36,7 +36,7 @@ const DropdownToggleHeader = styled(DropdownToggle)`
   &.onl:before {
     background-color: #36ce9a;
     border-radius: 50%;
-    content: '';
+    content: "";
     width: 6px;
     height: 6px;
     position: absolute;
@@ -99,7 +99,14 @@ const NavBarStyler = styled(Navbar)`
   }
   .nav-item {
     font-weight: bold;
-
+    .nav-link {
+      color: #9eaacc;
+      transition: none;
+      &:hover {
+        color: #9eaacc;
+        font-weight: bold;
+      }
+    }
     @media (min-width: 992px) {
       &:not(:first-child) {
         margin-left: 20px;
@@ -198,7 +205,6 @@ const ButtonSwitchMode = styled(MediumButtonStyler)`
   color: ${props => props.theme.switchModeColor};
   background: ${props => props.theme.switchModeBackground};
   white-space: nowrap;
-  margin-right: 40px;
 
   &:hover {
     background: ${props => props.theme.switchModeBackgroundHover};

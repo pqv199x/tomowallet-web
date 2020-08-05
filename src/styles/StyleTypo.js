@@ -1,18 +1,20 @@
-import styled from 'styled-components';
+import styled from "styled-components";
+import { primaryColor } from "./variables";
+import { lightenDarkenColor } from "../utils/style";
 // Style Component//
 
 const HeadingBig = styled.h1`
   color: ${props => props.theme.headingColor};
   font-size: 50px;
   font-weight: 600;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: "Bai Jamjuree", sans-serif;
 `;
 const HeadingLarge = styled.h2`
   color: ${props => props.theme.headingColor};
   font-size: 18px;
   font-weight: 600;
   text-transform: uppercase;
-  font-family: 'Bai Jamjuree', sans-serif;
+  font-family: "Bai Jamjuree", sans-serif;
 `;
 const HeadingMedium = styled.h3`
   color: ${props => props.theme.headingColor};

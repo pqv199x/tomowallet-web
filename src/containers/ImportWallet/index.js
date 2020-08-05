@@ -30,6 +30,7 @@ import {
   HeadingLarge,
   TextBlue,
   ImporWalletStyler,
+  BoxCardStyled,
 } from "../../styles";
 import LedgerForm from "./subcomponents/LedgerForm";
 import MetaMaskForm from "./subcomponents/MetaMaskForm";
@@ -46,7 +47,7 @@ import {
   updateInput,
   loadWalletAddresses,
   toggleAddressPopup,
-  updateChosenWallet
+  updateChosenWallet,
 } from "./actions";
 import reducer from "./reducer";
 import { ROUTE, MSG, ENUM, RPC_SERVER } from "../../constants";
@@ -109,15 +110,15 @@ class ImportWallet extends PureComponent {
     const { addressPopup, importWallet, onStoreWallet } = this.props;
     const chosenWallet = _get(addressPopup, [
       "wallets",
-      _get(addressPopup, "chosenIndex")
+      _get(addressPopup, "chosenIndex"),
     ]);
     const serverConfig = _get(RPC_SERVER, [getNetwork()], {});
 
     if (chosenWallet) {
-      getBalance(chosenWallet.address, serverConfig).then(balance => {
+      getBalance(chosenWallet.address, serverConfig).then((balance) => {
         const walletInfo = {
           address: chosenWallet.address,
-          balance
+          balance,
         };
         onStoreWallet(walletInfo);
         removeWeb3Info();
@@ -127,7 +128,7 @@ class ImportWallet extends PureComponent {
           hdPath: `${_get(importWallet, "input.hdPath")}/${_get(
             addressPopup,
             "chosenIndex"
-          )}`
+          )}`,
         });
         if (isElectron()) {
           removeKeystore().then(
@@ -164,104 +165,105 @@ class ImportWallet extends PureComponent {
         ...(!isPrivateKey(formValues.privateKey)
           ? {
               privateKey: [
-                formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_PRIVATE_KEY)
-              ]
+                formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_PRIVATE_KEY),
+              ],
             }
-          : {})
+          : {}),
       };
     } else if (keyInputType === KEY_INPUT_TYPE.RECOVERY_PHRASE) {
       errorList = {
         ...(!isRecoveryPhrase(formValues.recoveryPhrase)
           ? {
               recoveryPhrase: [
-                formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_RECOVERY_PHRASE)
-              ]
+                formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_RECOVERY_PHRASE),
+              ],
             }
           : {}),
-        ...this.handleValidateHDPath()
+        ...this.handleValidateHDPath(),
       };
     }
 
     if (_isEmpty(errorList)) {
-        // Create Web3 provider & store wallet data into state if form validation is passed.
-        try {
-            toggleLoading(true);
-            const accessKey = trimMnemonic(
-                formValues.recoveryPhrase || formValues.privateKey
+      // Create Web3 provider & store wallet data into state if form validation is passed.
+      try {
+        toggleLoading(true);
+        const accessKey = trimMnemonic(
+          formValues.recoveryPhrase || formValues.privateKey
+        );
+        const hdPath = _get(importWallet, "input.hdPath", "");
+        const isTestnet = getNetwork() === ENUM.NETWORK_TYPE.TOMOCHAIN_TESTNET;
+        const updatedRpcServer = hdPath
+          ? {
+              ...rpcServer,
+              hdPath,
+            }
+          : rpcServer;
+        const newWeb3 = createWeb3(accessKey, updatedRpcServer);
+        updateWeb3(newWeb3);
+
+        getWalletInfo(newWeb3)
+          .then((walletInfo) => {
+            onStoreWallet(walletInfo);
+
+            // get privacy address
+            const privacyObject = getPrivacyAddressInfo(
+              walletInfo.address,
+              isPrivateKey(accessKey) ? accessKey: mnemonicToPrivateKey(accessKey, updatedRpcServer),
+              updatedRpcServer,
+              isTestnet
             );
-            const hdPath = _get(importWallet, "input.hdPath", "");
-            const isTestnet = getNetwork() === ENUM.NETWORK_TYPE.TOMOCHAIN_TESTNET;
-            const updatedRpcServer = hdPath ?
-                {
-                    ...rpcServer,
-                    hdPath
-                } :
-                rpcServer;
-            const newWeb3 = createWeb3(accessKey, updatedRpcServer);
-            updateWeb3(newWeb3);
 
-            getWalletInfo(newWeb3)
-                .then(walletInfo => {
-                    onStoreWallet(walletInfo);
+            // listen privacy events
+            privacyObject.privacyWallet.on("NEW_UTXO", (utxo) => {
+              let isExisted = privacyObject.privacyWallet.utxos.find((element) => {
+                return element["3"] === utxo["3"] || parseInt(element["3"]) === parseInt(utxo["3"])
+              })
+              if (!isExisted) {
+                privacyObject.privacyWallet.utxos.push(utxo)
+                privacyObject.privacyWallet.balance = privacyObject.privacyWallet._calTotal(privacyObject.privacyWallet.utxos)
+                onLoadPrivacyBalance(privacyObject.privacyWallet.balance.toString(10))
+              }
+            })
+            
+            onStorePrivacyWallet(privacyObject)
 
-                    // get privacy address
-                    const privacyObject = getPrivacyAddressInfo(
-                      walletInfo.address,
-                      isPrivateKey(accessKey) ? accessKey: mnemonicToPrivateKey(accessKey, updatedRpcServer),
-                      updatedRpcServer,
-                      isTestnet
-                    );
-                    // listen privacy events
-                    privacyObject.privacyWallet.on("NEW_UTXO", (utxo) => {
-                      let isExisted = privacyObject.privacyWallet.utxos.find((element) => {
-                        return element["3"] === utxo["3"] || parseInt(element["3"]) === parseInt(utxo["3"])
-                      })
-                      if (!isExisted) {
-                        privacyObject.privacyWallet.utxos.push(utxo)
-                        privacyObject.privacyWallet.balance = privacyObject.privacyWallet._calTotal(privacyObject.privacyWallet.utxos)
-                        onLoadPrivacyBalance(privacyObject.privacyWallet.balance.toString(10))
-                      }
-                  })
-                    
-                  onStorePrivacyWallet(privacyObject)
-
-                    setWeb3Info({
-                        loginType: ENUM.LOGIN_TYPE.PRIVATE_KEY,
-                        recoveryPhrase: accessKey,
-                        address: walletInfo.address,
-                        ...(hdPath ?
-                            {
-                                hdPath
-                            } :
-                            {})
-                    });
-                })
-                .then(() => {
-                    if (isElectron() && accessType !== "keystore") {
-                        // Specific handle in Electron app:
-                        // Store encrypted wallet key into temporary file for quick access
-                        const privKey = formValues.recoveryPhrase ?
-                            mnemonicToPrivateKey(formValues.recoveryPhrase, rpcServer) :
-                            formValues.privateKey;
-                        removeKeystore().then(
-                            ({
-                                error
-                            }) => error && this.handleUpdateError(error.message)
-                        );
-                        writeRPFile(
-                            JSON.stringify(encryptKeystore(privKey, "recoveryPhrase"))
-                        ).then(
-                            ({
-                                error
-                            }) => error && this.handleUpdateError(error.message)
-                        );
-                    }
-                    toggleLoading(false);
-                    history.push(ROUTE.MY_WALLET);
-                });
-        } catch (error) {
-            this.handleUpdateError(error.message);
-        }
+            setWeb3Info({
+              loginType: ENUM.LOGIN_TYPE.PRIVATE_KEY,
+              recoveryPhrase: accessKey,
+              address: walletInfo.address,
+              ...(hdPath
+                ? {
+                    hdPath,
+                  }
+                : {}),
+            });
+          })
+          .then(() => {
+            if (isElectron() && accessType !== "keystore") {
+              // Specific handle in Electron app:
+              // Store encrypted wallet key into temporary file for quick access
+              const privKey = formValues.recoveryPhrase
+                ? mnemonicToPrivateKey(formValues.recoveryPhrase, rpcServer)
+                : formValues.privateKey;
+              removeKeystore().then(
+                ({ error }) => error && this.handleUpdateError(error.message)
+              );
+              writeRPFile(
+                JSON.stringify(encryptKeystore(privKey, "recoveryPhrase"))
+              ).then(
+                ({ error }) => error && this.handleUpdateError(error.message)
+              );
+            }
+            toggleLoading(false);
+            history.push(ROUTE.MY_WALLET);
+          })
+          .catch((err) => {
+            toggleLoading(false);
+            this.handleUpdateError(err.message);
+          });
+      } catch (error) {
+        this.handleUpdateError(error.message);
+      }
     } else {
         this.handleUpdateError(errorList);
     }
@@ -283,7 +285,7 @@ class ImportWallet extends PureComponent {
       onLoadWalletAddresses,
       onUpdateErrors,
       toggleLoading,
-      web3
+      web3,
     } = this.props;
     const hdPath = _get(importWallet, "input.hdPath", "");
     const errorList = this.handleValidateHDPath();
@@ -294,18 +296,18 @@ class ImportWallet extends PureComponent {
       toggleLoading(true);
       onUpdateErrors([]);
       selectHDPath(web3, hdPath)
-        .then(wallets => {
+        .then((wallets) => {
           toggleLoading(false);
           onLoadWalletAddresses(wallets);
         })
-        .catch(error => this.handleUpdateError(error.message));
+        .catch((error) => this.handleUpdateError(error.message));
     }
   }
 
   handleValidateHDPath() {
     const {
       importWallet,
-      intl: { formatMessage }
+      intl: { formatMessage },
     } = this.props;
     const { isRequired } = validations;
 
@@ -313,15 +315,15 @@ class ImportWallet extends PureComponent {
       ...isRequired(
         {
           name: "hdPath",
-          value: _get(importWallet, "input.hdPath")
+          value: _get(importWallet, "input.hdPath"),
         },
         formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_HD_PATH)
       ),
       ...(!isHDPath(_get(importWallet, "input.hdPath"))
         ? {
-            hdPath: [formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_HD_PATH)]
+            hdPath: [formatMessage(MSG.IMPORT_WALLET_ERROR_INVALID_HD_PATH)],
           }
-        : {})
+        : {}),
     };
   }
 
@@ -341,7 +343,7 @@ class ImportWallet extends PureComponent {
         (keyInputType === KEY_INPUT_TYPE.RECOVERY_PHRASE && "recoveryPhrase");
       if (field) {
         onUpdateErrors({
-          [field]: [error]
+          [field]: [error],
         });
       }
     } else if (typeof error === "object") {
@@ -356,7 +358,7 @@ class ImportWallet extends PureComponent {
       intl: { formatMessage },
       onToggleAddressPopup,
       onUpdateChosenWallet,
-      onUpdateInput
+      onUpdateInput,
     } = this.props;
 
     return (
@@ -582,19 +584,19 @@ ImportWallet.defaultProps = {
 const mapStateToProps = () =>
   createStructuredSelector({
     addressPopup: selectAddressPopup,
-    importWallet: selectImportState
+    importWallet: selectImportState,
   });
-const mapDispatchToProps = dispatch => ({
-  onLoadWalletAddresses: data => dispatch(loadWalletAddresses(data)),
+const mapDispatchToProps = (dispatch) => ({
+  onLoadWalletAddresses: (data) => dispatch(loadWalletAddresses(data)),
   onResetState: () => dispatch(resetState()),
-  onStoreWallet: wallet => dispatch(storeWallet(wallet)),
-  onToggleAddressPopup: bool => dispatch(toggleAddressPopup(bool)),
-  onUpdateChosenWallet: index => dispatch(updateChosenWallet(index)),
-  onUpdateErrors: errors => dispatch(updateErrors(errors)),
-  onUpdateImportType: type => dispatch(updateImportType(type)),
+  onStoreWallet: (wallet) => dispatch(storeWallet(wallet)),
+  onToggleAddressPopup: (bool) => dispatch(toggleAddressPopup(bool)),
+  onUpdateChosenWallet: (index) => dispatch(updateChosenWallet(index)),
+  onUpdateErrors: (errors) => dispatch(updateErrors(errors)),
+  onUpdateImportType: (type) => dispatch(updateImportType(type)),
   onUpdateInput: (name, value) => dispatch(updateInput(name, value)),
   onStorePrivacyWallet: wallet => dispatch(storePrivacyWallet(wallet)),
-  onLoadPrivacyBalance: (wallet) => dispatch(updatePrivacyBalance(wallet)),
+  onLoadPrivacyBalance: (wallet) => dispatch(updatePrivacyBalance(wallet))
 });
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);
